@@ -1,14 +1,94 @@
+<!doctype html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EVERA Official Website | エヴェラ オフィシャルサイト</title>
-  <meta name="description" content="EVERA（エヴェラ）のオフィシャルサイト。最新楽曲、ミュージックビデオ、プロジェクトの公式情報を掲載中。">
-  
-  <!-- OGP (SNSシェア時のカード表示用) -->
-  <meta property="og:title" content="EVERA Official Website">
-  <meta property="og:description" content="EVERA（エヴェラ）のオフィシャルサイト。最新楽曲、ミュージックビデオ、プロジェクトの公式情報を掲載中。">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://kurenaivoid.github.io/evera/site/">
-  <meta property="og:image" content="https://kurenaivoid.github.io/evera/site/assets/ogp.jpg">
-  <meta name="twitter:card" content="summary_large_image">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EVERA — Official Site</title>
+<meta name="description" content="EVERA — Dark Electro-Pop / Industrial Trance の2人組ユニット、公式サイト。">
+<meta property="og:title" content="EVERA — Official Site">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="css/KURENAIVOID-site.css">
 </head>
+<body class="lock">
+<div id="intro" aria-hidden="true"><div class="pic"></div><div class="mask"><div class="word">EVERA</div></div><div class="veil"><div class="word">EVERA</div></div><button id="skip">SKIP</button></div>
+
+<header id="nav">
+  <a class="logo" href="#top">EVERA</a>
+  <button id="menu" aria-label="メニュー">MENU</button>
+  <nav id="links-nav"><a href="#music">MUSIC</a><a href="#mv">MV</a><a href="#story">STORY</a><a href="#profile">PROFILE</a><a href="#play">PLAY</a><a href="#links">LINKS</a></nav>
+</header>
+
+<main>
+<section id="top" class="hero">
+  <div class="wrap">
+    <h1 class="glitch" id="gl" data-t="EVERA">EVERA</h1>
+    <p class="tag">DARK ELECTRO-POP / INDUSTRIAL TRANCE</p>
+    <p class="catch">（ここにキャッチコピーを入れます）</p>
+    <div class="btns"><a class="btn solid" href="#music">LISTEN</a><a class="btn" href="#story">STORY</a></div>
+    <div class="latest rv" id="latest"></div>
+  </div>
+</section>
+<div class="strip" aria-hidden="true"><div class="trk"><span>EVERA ／ DARK ELECTRO-POP ／ INDUSTRIAL TRANCE ／ JILL &amp; NINA ／ KURENAI VOID ／ </span><span>EVERA ／ DARK ELECTRO-POP ／ INDUSTRIAL TRANCE ／ JILL &amp; NINA ／ KURENAI VOID ／ </span></div></div>
+
+<section id="music"><div class="wrap">
+  <h2 class="hv rv">DISCOGRAPHY</h2>
+  <p class="lead rv">ジャケットを押すと、プレーヤーで聴けます。公開前の作品は、公開日になると自動で聴けるようになります。</p>
+  <div class="jackets" id="jackets"></div>
+  <h2 class="hv rv sub2">DISC PLAYER</h2>
+  <p class="lead rv">レコードをつかんで回すと、早送り・巻き戻しができます。</p>
+  <div class="frame rv"><iframe id="pl" title="EVERA DISC PLAYER" data-src="player/KURENAIVOID-disc-player.html" allow="autoplay"></iframe></div>
+</div></section>
+
+<section id="mv"><div class="wrap">
+  <h2 class="hv rv">MV</h2>
+  <p class="lead rv">MVは、YouTubeで公開します。</p>
+  <div class="mvs" id="mvs"></div>
+</div></section>
+
+<section id="story"><div class="wrap">
+  <h2 class="hv rv">SHORT STORY</h2>
+  <p class="lead rv">ジルとニナの物語。カードを押すと、絵が動いて、文字が浮かび上がります。</p>
+  <div class="stories" id="stories"></div>
+</div></section>
+
+<section id="profile"><div class="wrap">
+  <h2 class="hv rv">PROFILE</h2>
+  <p class="lead rv">（ここにユニットの紹介文を入れます）</p>
+  <div class="pf rv" id="pf">
+    <div class="pf-stage" id="pfStage">
+      <video class="pv" id="pvA" muted playsinline preload="auto" poster="assets/images/profile/KURENAIVOID-profile-poster.jpg"><source src="assets/video/KURENAIVOID-intro.webm" type="video/webm"><source src="assets/video/KURENAIVOID-intro.mp4" type="video/mp4"></video>
+      <video class="pv" id="pvB" muted playsinline preload="auto" poster="assets/images/profile/KURENAIVOID-profile-poster.jpg" aria-hidden="true"><source src="assets/video/KURENAIVOID-intro.webm" type="video/webm"><source src="assets/video/KURENAIVOID-intro.mp4" type="video/mp4"></video>
+      <button class="pf-open" id="pfOpen">SELF INTRODUCTION<small>自己紹介</small></button>
+    </div>
+    <div class="pf-people" id="pfPeople" hidden></div>
+    <div class="pf-back"><button class="btn" id="pfBack" hidden>← もどる</button></div>
+  </div>
+  <div class="world rv" id="world"></div>
+</div></section>
+
+<section id="play"><div class="wrap">
+  <h2 class="hv rv">PLAY</h2>
+  <p class="lead rv">聴くだけじゃない。EVERAの曲で、遊んでいって。</p>
+  <div class="plays rv">
+    <img class="duo" src="assets/images/KURENAIVOID-dj-duo.webp" alt="JILL &amp; NINA DJ" loading="lazy">
+    <div class="pcards">
+      <a class="pcard" href="play/dj/index.html" data-open="play/dj/index.html" data-kind="dj"><span class="b">BETA</span><h3 class="hv">DJ TURNTABLE</h3><p>2台のターンテーブルで、EVERAの曲をミックスしよう。（パソコン推奨）</p></a>
+      <div class="pcard lk"><span class="b">COMING SOON</span><h3>RHYTHM</h3><p>音ゲーを準備中です。</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="links"><div class="wrap">
+  <h2 class="hv rv">LINKS</h2>
+  <div class="lks" id="lks"></div>
+</div></section>
+</main>
+
+<footer><div class="wrap"><span>© EVERA / KURENAI VOID</span><a href="#" id="replay">OPENINGをもう一度</a></div></footer>
+<div id="mp" aria-label="ミニプレーヤー"><button id="mpPrev" aria-label="前の曲">⏮</button><button id="mpP" aria-label="再生">▶</button><button id="mpN" aria-label="次の曲">⏭</button><div id="mpT"><b id="mpTi">EVERA</b><small id="mpTm">▶ をおすと、音楽がはじまります</small></div></div>
+<div id="ov" hidden><iframe id="ovf" title="EVERA" allow="autoplay"></iframe></div>
+<script src="../assets/data/KURENAIVOID-tracks.js"></script>
+<script src="js/KURENAIVOID-site-data.js"></script>
+<script src="js/KURENAIVOID-site.js"></script>
+</body>
+</html>
