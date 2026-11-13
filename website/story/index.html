@@ -166,7 +166,7 @@ async function flick(){
 }
 
 /* 文字を1行ずつ出す */
-const LULLABY=Object.fromEntries(Object.entries(EVERA_DATA.lullaby).map(([k,v])=>[k,{src:'../'+v.src,lines:v.lines}]));
+const LULLABY=Object.fromEntries(Object.entries(EVERA_DATA.lullaby).map(([k,v])=>[k,{src:/^https?:/.test(v.src)?v.src:'../'+v.src,lines:v.lines}]));
 
 /* ===== 子守唄 ===== */
 const aud=$('aud'),lyr=$('lyr'),bSong=$('bSong'),toast=$('toast');let curSong=null,calm=false,lyIv=null;
@@ -177,6 +177,7 @@ function stopSong(){clearInterval(lyIv);curSong=null;calm=false;singing=false;ly
 function playSong(ver){
   const Lr=LULLABY[ver];if(!Lr)return;
   if(curSong===ver&&!aud.paused){stopSong();return}
+  try{if(window.KV_FOUND&&KV_FOUND.add(ver)){const tt=(EVERA_DATA.tracks.find(x=>x.secret===ver)||{}).title||'';showToast('♪ ひみつの曲を見つけました：'+tt)}}catch(e){}
   curSong=ver;aud.src=Lr.src;aud.volume=0;aud.currentTime=0;
   aud.play().then(()=>{let v=0;const iv=setInterval(()=>{v=Math.min(.7,v+.05);aud.volume=v;if(v>=.7)clearInterval(iv)},70)}).catch(()=>{curSong=null;showToast('音を再生できませんでした')});
   calm=true;++flTok;fl.style.transition='opacity .3s';fl.style.opacity=0;bSong.textContent='■ とめる';
@@ -186,7 +187,7 @@ function playSong(ver){
 }
 function afterPara(st,i){
   if(st.song&&i===st.song.at){bSong.dataset.t='♪ 子守唄（日本語）';bSong.textContent=bSong.dataset.t;bSong.hidden=false;bSong.onclick=()=>playSong(st.song.ver)}
-  if(st.secret&&i===st.secret.at){const p=txt.lastElementChild,w=st.secret.word;if(p&&p.textContent.includes(w)){p.innerHTML=p.textContent.replace(w,'<span class="secret" tabindex="0" role="button">'+w+'</span>');const s=p.querySelector('.secret');const go=()=>{playSong(st.secret.ver);showToast('♪ ひみつの子守唄を見つけました')};s.onclick=go;s.onkeydown=e=>{if(e.key==='Enter')go()}}}
+  if(st.secret&&i===st.secret.at){const p=txt.lastElementChild,w=st.secret.word;if(p&&p.textContent.includes(w)){p.innerHTML=p.textContent.replace(w,'<span class="secret" tabindex="0" role="button">'+w+'</span>');const s=p.querySelector('.secret');const go=()=>{playSong(st.secret.ver)};s.onclick=go;s.onkeydown=e=>{if(e.key==='Enter')go()}}}
 }
 let token=0,skip=false,spd=1;
 const SP=[['ゆっくり',70],['ふつう',40],['はやい',16]];

@@ -135,7 +135,7 @@ registerProcessor('deck',DeckProc);
 /* ===== 曲の一覧は js/KURENAIVOID-site-data.js にあります ===== */
 const TRACKS=EVERA_DATA.tracks.map(t=>t.file?Object.assign({},t,{file:t.file,label:'../../'+t.art},t.single?{num:'',listnum:t.num}:{}):t);
 const NOW=new Date();
-const isOpen=t=>!!t.file&&(!t.date||new Date(t.date+'T00:00:00')<=NOW);
+const isOpen=t=>!!t.file&&(!t.date||new Date(t.date+'T00:00:00')<=NOW)&&(!t.secret||KV_FOUND.has(t.secret));
 
 /* ===== 共通 ===== */
 const RPM=200,clamp=(x,a,b)=>Math.max(a,Math.min(b,x));

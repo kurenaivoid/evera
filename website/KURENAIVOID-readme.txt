@@ -39,3 +39,12 @@ index.html の「（ここに…を入れます）」の部分が、キャッチ
     assets/data/KURENAIVOID-tracks.js … 曲の名簿（サイトと音ゲーで共通）
 ・新しい曲は、「mp3を置く」→「名簿に1行足す」の2つだけです。サイトにも音ゲーにも自動で出ます
 ・子守唄のmp3（assets/music/lullaby/）は、公開するか迷っているため、この版には入れていません
+
+■ 第6版で変わったところ
+・音ゲー「お仕置きビンタ！紅、天誅」を、PLAYのRHYTHMカードから開けるようにしました（サイトの上に重ねて開きます。開いている間、メインの音楽は止まります）
+・MVの枠を5つにしました（ILIMināt／子守唄2つ／EVERA AT ZERO JILL／EVERA AT ZERO NINA）。YouTubeのIDは js/KURENAIVOID-site-data.js の mvs に入れます
+・子守唄（日本語・ロシア語）を「ひみつの曲」にしました。ストーリーで曲を見つけると、DISCOGRAPHYのジャケットとMVが開き、プレーヤー・DJでも使えます
+    確認用の合言葉（サイトのURLの最後に付ける）： ?found=all（全部見つけた状態）／?found=off（解除）／?found=reset（記録を消す）
+・2ndシングル・3rdシングルを「Twin Single」にまとめました
+・LINKSを、通信ライン風のデザインに変えました
+・子守唄のmp3は、assets/music/lullaby/ に置きます（Gitのいちばん上の assets/ です）

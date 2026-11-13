@@ -29,9 +29,16 @@
   {"kind": "1st Album", "num": "11", "title": "Terminal Liturgy", "rel": "music/album01/KURENAIVOID-album01-11-terminal-liturgy.mp3", "date": "2026-01-01"},
   {"kind": "1st Album", "num": "12", "title": "Cold Iron Prayer", "rel": "music/album01/KURENAIVOID-album01-12-cold-iron-prayer.mp3", "date": "2026-01-01"},
   {"kind": "1st Album", "num": "13", "title": "Where the Broken Spirits Sleep", "rel": "music/album01/KURENAIVOID-album01-13-where-the-broken-spirits-sleep.mp3", "date": "2026-01-01"},
-  {"kind": "2nd Single", "date": "2027-01-01"},
-  {"kind": "3rd Single", "date": "2027-01-01"},
+  {"kind": "Twin Single", "date": "2027-01-01"},
+  {"kind": "Twin Single", "date": "2027-01-01"},
   {"kind": "2nd Album", "date": null}
   ];
   window.EVERA_TRACKS=L.map(function(t){return t.rel?Object.assign({},t,{file:url(t.rel)}):t});
+
+  /* ひみつの曲（子守唄）。見つけるまで、プレーヤー・DJには出ません。音ゲーは、この一覧を読みません。
+     secret … 見つけたかどうかの目印（ja / ru）。rel … mp3の場所 */
+  window.EVERA_SECRET=[
+    {"kind": "Lullaby", "num": "S1", "title": "ちっちゃなニナ", "rel": "music/lullaby/KURENAIVOID-lullaby-ja.mp3", "date": null, "secret": "ja"},
+    {"kind": "Lullaby", "num": "S2", "title": "Малышка Нина", "rel": "music/lullaby/KURENAIVOID-lullaby-ru.mp3", "date": null, "secret": "ru"}
+  ].map(function(t){return Object.assign({},t,{file:url(t.rel)})});
 })();

@@ -107,7 +107,7 @@ canvas{width:110px;height:36px}
 /* ===== 曲の一覧は js/KURENAIVOID-site-data.js にあります ===== */
 const TRACKS=EVERA_DATA.tracks.map(t=>t.file?Object.assign({},t,{file:t.file.replace(/^player\//,''),label:t.label.replace(/^player\//,'')}):t);
 const NOW=new Date();
-const isOpen=t=>!!t.file&&(!t.date||new Date(t.date+'T00:00:00')<=NOW);
+const isOpen=t=>!!t.file&&(!t.date||new Date(t.date+'T00:00:00')<=NOW)&&(!t.secret||KV_FOUND.has(t.secret));
 const $=id=>document.getElementById(id);
 const deck=$('deck'),platter=$('platter'),slide=$('slide'),rec=$('rec'),arm=$('arm'),label=$('label'),playBtn=$('play'),bar=$('bar'),fill=$('fill'),tm=$('tm'),msg=$('msg'),cv=$('viz'),cc=cv.getContext('2d');
 const RPM=198,sl=ms=>new Promise(r=>setTimeout(r,ms));
@@ -173,7 +173,7 @@ async function loadTrack(i,auto){
 function renderList(){
   const L=$('list');L.innerHTML='';
   TRACKS.forEach((t,i)=>{const b=document.createElement('button'),o=isOpen(t);b.className='it'+(i===cur?' cur':'')+(o?'':' lk');
-    b.innerHTML='<span>'+(t.num?'#'+t.num:'—')+'</span><span>'+(o?t.title:'COMING SOON　'+(t.kind||''))+'</span>';b.onclick=()=>loadTrack(i,playing);L.appendChild(b)});
+    b.innerHTML='<span>'+(t.num&&(o||!t.secret)?'#'+t.num:'—')+'</span><span>'+(o?t.title:t.secret?'？？？':'COMING SOON　'+(t.kind||''))+'</span>';b.onclick=()=>loadTrack(i,playing);L.appendChild(b)});
 }
 
 /* ---- 回す・止める ---- */
@@ -281,6 +281,9 @@ function castSay(){
 tap('hsCpl',castSay);
 armA=PHI_REST;applySettings();$('view').onclick=()=>{TILT=TILT?0:20;deck.style.setProperty('--tilt',TILT+'deg');$('view').textContent=TILT?'3D':'FLAT'};function startIdx(){const m=location.hash.match(/#t(\d+)/);if(m){const i=TRACKS.findIndex(x=>x.num===m[1].padStart(2,'0'));if(i>=0&&isOpen(TRACKS[i]))return i}return Math.max(0,TRACKS.findIndex(isOpen))}
 setup();renderList();const __boot=loadTrack(startIdx(),false);requestAnimationFrame(loop);
+
+/* ひみつの曲を見つけたら、曲の一覧を作り直す */
+addEventListener('storage',e=>{if(e.key==='evera-found'||e.key==null)renderList()});
 
 /* ===== サイト（親ページ）から、曲の切り替え・再生・停止をできるようにする ===== */
 (function(){

@@ -33,6 +33,7 @@
 <section id="music"><div class="wrap">
   <h2 class="hv rv">DISCOGRAPHY</h2>
   <p class="lead rv">ジャケットを押すと、プレーヤーで聴けます。公開前の作品は、公開日になると自動で聴けるようになります。</p>
+  <p class="found rv" id="found"></p>
   <div class="jackets" id="jackets"></div>
   <h2 class="hv rv sub2">DISC PLAYER</h2>
   <p class="lead rv">レコードをつかんで回すと、早送り・巻き戻しができます。</p>
@@ -41,7 +42,7 @@
 
 <section id="mv"><div class="wrap">
   <h2 class="hv rv">MV</h2>
-  <p class="lead rv">MVは、YouTubeで公開します。</p>
+  <p class="lead rv">MVは、YouTubeで公開します。ひみつの曲を見つけると、その曲のMVが開きます。</p>
   <div class="mvs" id="mvs"></div>
 </div></section>
 
@@ -73,7 +74,7 @@
     <img class="duo" src="assets/images/KURENAIVOID-dj-duo.webp" alt="JILL &amp; NINA DJ" loading="lazy">
     <div class="pcards">
       <a class="pcard" href="play/dj/index.html" data-open="play/dj/index.html" data-kind="dj"><span class="b">BETA</span><h3 class="hv">DJ TURNTABLE</h3><p>2台のターンテーブルで、EVERAの曲をミックスしよう。（パソコン推奨）</p></a>
-      <div class="pcard lk"><span class="b">COMING SOON</span><h3>RHYTHM</h3><p>音ゲーを準備中です。</p></div>
+      <a class="pcard" href="https://kurenaivoid.github.io/evera/game/oshioki-binta/KURENAIVOID-oshioki-binta.html" data-open="https://kurenaivoid.github.io/evera/game/oshioki-binta/KURENAIVOID-oshioki-binta.html" data-kind="game"><span class="b">NEW</span><h3 class="hv">RHYTHM</h3><p>お仕置きビンタ！紅、天誅 ― EVERAの曲で遊べる音ゲー。（パソコン推奨）</p></a>
     </div>
   </div>
 </div></section>
@@ -86,7 +87,7 @@
 
 <footer><div class="wrap"><span>© EVERA / KURENAI VOID</span><a href="#" id="replay">OPENINGをもう一度</a></div></footer>
 <div id="mp" aria-label="ミニプレーヤー"><button id="mpPrev" aria-label="前の曲">⏮</button><button id="mpP" aria-label="再生">▶</button><button id="mpN" aria-label="次の曲">⏭</button><div id="mpT"><b id="mpTi">EVERA</b><small id="mpTm">▶ をおすと、音楽がはじまります</small></div></div>
-<div id="ov" hidden><iframe id="ovf" title="EVERA" allow="autoplay"></iframe></div>
+<div id="ov" hidden><div id="ovbar"><span>お仕置きビンタ！紅、天誅</span><span><a id="ovtab" target="_blank" rel="noopener">別タブで開く</a><button id="ovx">✕ とじる</button></span></div><iframe id="ovf" title="EVERA" allow="autoplay; fullscreen"></iframe></div>
 <script src="../assets/data/KURENAIVOID-tracks.js"></script>
 <script src="js/KURENAIVOID-site-data.js"></script>
 <script src="js/KURENAIVOID-site.js"></script>

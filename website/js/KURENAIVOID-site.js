@@ -29,32 +29,56 @@ const watch=()=>document.querySelectorAll('.rv:not(.in)').forEach(e=>io.observe(
 const gl=$('gl');const burst=()=>{gl.classList.remove('on');void gl.offsetWidth;gl.classList.add('on')};gl.addEventListener('mouseenter',burst);(function lp(){setTimeout(()=>{burst();lp()},3000+Math.random()*3500)})();
 if(matchMedia('(hover:hover)').matches){const c=document.createElement('div');c.id='cur';document.body.appendChild(c);addEventListener('pointermove',e=>{c.style.opacity=1;c.style.transform=`translate(${e.clientX}px,${e.clientY}px)`})}
 
-/* 作品（ジャケット・最新リリース） */
-const grid=$('jackets');
-RELEASES.forEach(r=>{
-  const o=open(r),el=document.createElement('div');el.className='jk rv'+(o?'':' lk');
-  let lab='COMING SOON',sub='準備中';const d=r.date?new Date(r.date+'T00:00:00'):null;
-  if(!o&&d){lab='COMING SOON<br>'+r.date.replace(/-/g,'.');sub='公開まで あと '+Math.ceil((d-NOW)/864e5)+' 日'}
-  el.innerHTML=(o?`<a href="#music" data-track="${r.track}">`:'')+`<div class="jk-card"${o?` style="background-image:url(${r.art})"`:''}><div class="shine"></div>${o?'':`<div class="lbl">${lab}</div>`}</div>`+(o?'</a>':'')+`<div class="jk-info"><b>${o?r.title:r.kind}</b><span>${o?r.kind+'　公開中':sub}</span></div>`;
-  const card=el.querySelector('.jk-card');
-  if(!matchMedia('(prefers-reduced-motion:reduce)').matches){const k=o?14:5;
-    el.addEventListener('pointermove',e=>{const b=card.getBoundingClientRect(),x=(e.clientX-b.left)/b.width,y=(e.clientY-b.top)/b.height;card.style.transform=`rotateY(${(x-.5)*k}deg) rotateX(${(.5-y)*k}deg) scale(1.03)`;card.style.setProperty('--mx',x*100+'%');card.style.setProperty('--my',y*100+'%')});
-    el.addEventListener('pointerleave',()=>{card.style.transform=''})}
-  grid.appendChild(el);
-});
-const latest=RELEASES.filter(open).sort((a,b)=>b.date>a.date?1:-1)[0];
+/* 作品（ジャケット・最新リリース）。ひみつの曲は、見つけるまで「？？？」 */
+const FOUND=window.KV_FOUND,grid=$('jackets');let justFound='',drawn=false;
+const isSec=r=>!!r.secret,hidden=r=>isSec(r)&&!FOUND.has(r.secret);
+function renderFound(){const n=RELEASES.filter(isSec),c=n.filter(r=>FOUND.has(r.secret)).length,el=$('found');if(!el)return;if(!n.length){el.remove();return}
+  el.innerHTML='SECRET FOUND　<b>'+c+'</b> / '+n.length+(c===n.length?'　— ALL FOUND —':'');el.classList.toggle('all',c===n.length)}
+function renderJackets(){
+  grid.innerHTML='';
+  RELEASES.forEach(r=>{
+    const hid=hidden(r),o=!hid&&open(r),el=document.createElement('div');
+    el.className='jk rv'+(drawn?' in':'')+(hid?' sec':o?'':' lk')+(r.secret&&r.secret===justFound?' new':'');
+    if(hid){
+      el.innerHTML=`<div class="jk-card" style="background-image:url(${r.lock})"><div class="shine"></div><div class="lbl scr">SECRET</div></div><div class="jk-info"><b>？？？</b><span>このページ内のどこかに隠れています、探してみてね。</span></div>`;
+    }else{
+      let lab='COMING SOON',sub='準備中';const d=r.date?new Date(r.date+'T00:00:00'):null;
+      if(!o&&d){lab='COMING SOON<br>'+r.date.replace(/-/g,'.');sub='公開まで あと '+Math.ceil((d-NOW)/864e5)+' 日'}
+      el.innerHTML=(o?`<a href="#music" data-track="${r.track}">`:'')+`<div class="jk-card"${o?` style="background-image:url(${r.art})"`:''}><div class="shine"></div>${o?'':`<div class="lbl">${lab}</div>`}</div>`+(o?'</a>':'')+`<div class="jk-info"><b>${o?r.title:r.kind}</b><span>${o?r.kind+(r.secret?'　ひみつの曲':'　公開中'):sub}</span></div>`;
+    }
+    const card=el.querySelector('.jk-card');
+    if(!matchMedia('(prefers-reduced-motion:reduce)').matches){const k=o?14:5;
+      el.addEventListener('pointermove',e=>{const b=card.getBoundingClientRect(),x=(e.clientX-b.left)/b.width,y=(e.clientY-b.top)/b.height;card.style.transform=`rotateY(${(x-.5)*k}deg) rotateX(${(.5-y)*k}deg) scale(1.03)`;card.style.setProperty('--mx',x*100+'%');card.style.setProperty('--my',y*100+'%')});
+      el.addEventListener('pointerleave',()=>{card.style.transform=''})}
+    grid.appendChild(el);
+  });
+  justFound='';watch();
+}
+const latest=RELEASES.filter(r=>!isSec(r)&&open(r)).sort((a,b)=>b.date>a.date?1:-1)[0];
 if(latest)$('latest').innerHTML=`<a class="latest" style="margin:0;border:0;padding:0;background:none;backdrop-filter:none" href="#music" data-track="${latest.track}"><img src="${latest.art}" alt=""><div><small>LATEST RELEASE</small><b>${latest.title}</b><span>${latest.kind} ／ LISTEN →</span></div></a>`;else $('latest').remove();
 
-/* MV */
-MVS.forEach(m=>{const d=document.createElement('div');d.className='mv rv';
-  if(m.youtube)d.innerHTML=`<iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${m.youtube}" title="${m.title}" allowfullscreen></iframe>`;
-  else d.innerHTML=`<div><b>${m.title}</b>COMING SOON</div>`;$('mvs').appendChild(d)});
+/* MV（ひみつの曲のMVは、その曲を見つけるまで「？？？」） */
+const mvBox=$('mvs');
+function renderMVs(){
+  mvBox.innerHTML='';
+  MVS.forEach(m=>{const d=document.createElement('div');d.className='mv rv'+(drawn?' in':'');
+    if(m.secret&&!FOUND.has(m.secret)){d.classList.add('sec');d.innerHTML='<div><b>？？？</b>SECRET<br><small>隠れた曲を見つけると、ここで見られます</small></div>'}
+    else if(m.youtube)d.innerHTML=`<iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${m.youtube}" title="${m.title}" allowfullscreen></iframe>`;
+    else d.innerHTML=`<div><b>${m.title}</b>COMING SOON</div>`;
+    mvBox.appendChild(d)});
+  watch();
+}
+/* 曲を見つけたら、ジャケット・MV・数を作り直す */
+function refreshFound(ver){if(ver)justFound=ver;renderJackets();renderMVs();renderFound()}
+renderJackets();renderMVs();renderFound();drawn=true;
+addEventListener('storage',e=>{if(e.key==='evera-found'||e.key==null)refreshFound()});
 /* ストーリー */
 STORIES.forEach((st,i)=>{const no=st.no,t=st.title,s=st.sum;const a=document.createElement('a');a.className='sc rv';a.href='story/index.html#s'+(i+1);a.dataset.open=a.getAttribute('href');a.dataset.kind='story';
   a.style.backgroundImage=`linear-gradient(180deg,rgba(0,0,0,.05) 35%,rgba(0,0,0,.9)),url(${st.thumb})`;
   a.innerHTML=`<div class="cn">${no}</div><h3 class="hv">${t}</h3><p>${s}</p>`;$('stories').appendChild(a)});
 /* リンク */
-LINKS.forEach(l=>{const a=document.createElement(l.u?'a':'div');a.className='lk2 rv'+(l.u?'':' off');if(l.u){a.href=l.u;a.target='_blank';a.rel='noopener'}a.innerHTML=l.n+`<small>${l.s}</small>`;$('lks').appendChild(a)});
+LINKS.forEach((l,i)=>{const a=document.createElement(l.u?'a':'div');a.className='lk2 rv'+(l.u?'':' off');if(l.u){a.href=l.u;a.target='_blank';a.rel='noopener'}
+  a.innerHTML=`<i class="no">${String(i+1).padStart(2,'0')}</i><span class="nm">${l.n}</span><small>${l.s}</small><em class="st">${l.u?'ONLINE':'OFFLINE'}</em>`;$('lks').appendChild(a)});
 /* プレーヤーは、見える近くまで来てから読み込む */
 const pl=$('pl');new IntersectionObserver((es,ob)=>{if(es[0].isIntersecting){if(!pl.getAttribute('src'))pl.src=pl.dataset.src;ob.disconnect()}},{rootMargin:'400px'}).observe(pl);
 
@@ -102,8 +126,9 @@ watch();
   }
   const pauseMain=()=>{if(cur.playing){send({c:'pause'});pausedByMe=true}};
   const resumeMain=()=>{if(pausedByMe){pausedByMe=false;send({c:'play'})}};
-  function openOv(url,kind){ovf.src=url;ov.hidden=false;document.body.classList.add('ovopen');if(kind==='dj')pauseMain()}
-  function closeOv(){ov.hidden=true;ovf.src='about:blank';document.body.classList.remove('ovopen');resumeMain()}
+  function openOv(url,kind){ovf.src=url;ov.hidden=false;ov.classList.toggle('g',kind==='game');if(kind==='game')$('ovtab').href=url;document.body.classList.add('ovopen');if(kind==='dj'||kind==='game')pauseMain()}
+  function closeOv(){ov.hidden=true;ov.classList.remove('g');ovf.src='about:blank';document.body.classList.remove('ovopen');resumeMain()}
+  $('ovx').onclick=closeOv;
   addEventListener('message',e=>{
     const d=e.data;if(!d||!d.evera)return;
     if(e.source===frame.contentWindow){
@@ -121,6 +146,7 @@ watch();
       }
     }else if(ovf.contentWindow&&e.source===ovf.contentWindow){
       if(d.t==='close')closeOv();
+      if(d.t==='found')refreshFound(d.ver);
       if(d.t==='song'){if(d.on)pauseMain();else resumeMain()}
     }
   });

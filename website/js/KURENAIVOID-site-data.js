@@ -3,6 +3,31 @@
    ・date が今日より先の作品は「COMING SOON」になり、公開日になると自動で聴けるようになります
    ・ファイルの場所は、index.html があるフォルダからの道すじで書きます
    ===================================================================== */
+/* ---- ひみつの曲を「見つけたか」の記録（サイト・プレーヤー・DJ・ストーリーで共通）----
+   記録は、このブラウザの中だけ（localStorage）。確認用の合言葉（サイトのURLの最後に付けます）：
+     ?found=all   … 全部見つけた状態にする（そのタブを閉じるまで）
+     ?found=off   … ↑を解除する
+     ?found=reset … 見つけた記録を消して、最初に戻す */
+window.KV_FOUND=(function(){
+  var K='evera-found',S='evera-found-all';
+  try{var q=location.search||'';
+    if(/[?&]found=all(&|$)/.test(q))sessionStorage.setItem(S,'1');
+    else if(/[?&]found=off(&|$)/.test(q))sessionStorage.removeItem(S);
+    else if(/[?&]found=reset(&|$)/.test(q)){sessionStorage.removeItem(S);localStorage.removeItem(K)}
+  }catch(e){}
+  var all=function(){try{return sessionStorage.getItem(S)==='1'}catch(e){return false}};
+  var rd=function(){try{var o=JSON.parse(localStorage.getItem(K)||'{}');return o&&typeof o==='object'?o:{}}catch(e){return {}}};
+  return{
+    has:function(v){return all()||!!rd()[v]},
+    add:function(v){
+      if(all())return false;var o=rd();if(o[v])return false;o[v]=1;
+      try{localStorage.setItem(K,JSON.stringify(o))}catch(e){return false}
+      try{if(parent!==window)parent.postMessage({evera:1,t:'found',ver:v},'*')}catch(e){}
+      return true}
+  };
+})();
+function KV_SECRET_FILE(v){var a=window.EVERA_SECRET||[];for(var i=0;i<a.length;i++)if(a[i].secret===v)return a[i].file;return''}
+
 /* ---- 曲の名簿は assets/data/KURENAIVOID-tracks.js に移しました（サイトと音ゲーで共通）。
         ここには、曲ごとの「丸い絵（label）」と「ジャケット（art）」だけを書きます。
         "_" は、書いていない曲に使う標準の絵です ---- */
@@ -14,6 +39,14 @@ var KV_TRACK_ART={
  "music/album01/KURENAIVOID-album01-07-iliminat.mp3": {
   "label": "player/assets/images/KURENAIVOID-label-iliminat.jpg",
   "art": "player/assets/images/KURENAIVOID-label-iliminat.jpg"
+ },
+ "music/lullaby/KURENAIVOID-lullaby-ja.mp3": {
+  "label": "player/assets/images/KURENAIVOID-label-lullaby-ja.jpg",
+  "art": "player/assets/images/KURENAIVOID-label-lullaby-ja.jpg"
+ },
+ "music/lullaby/KURENAIVOID-lullaby-ru.mp3": {
+  "label": "player/assets/images/KURENAIVOID-label-lullaby-ru.jpg",
+  "art": "player/assets/images/KURENAIVOID-label-lullaby-ru.jpg"
  }
 };
 
@@ -21,20 +54,27 @@ window.EVERA_DATA={
 
 /* ---- 作品（ジャケット）。track は、押したときにプレーヤーで流す曲の番号 ---- */
 releases:[
+  /* secret を書いた作品は「ひみつの曲」。見つけるまで「？？？」。lock … 見つける前のサムネ、art … 見つけたあとのジャケット */
   {"kind": "1st Single", "title": "ILIMināt", "art": "player/assets/images/KURENAIVOID-label-iliminat.jpg", "date": "2026-01-01", "track": "07"},
   {"kind": "1st Album", "title": "EVERA AT VOID", "art": "player/assets/images/KURENAIVOID-label-album01.jpg", "date": "2026-01-01", "track": "00"},
-  {"kind": "2nd Single", "date": "2027-01-01"},
-  {"kind": "3rd Single", "date": "2027-01-01"},
+  {"kind": "Lullaby（日本語）", "title": "ちっちゃなニナ", "art": "player/assets/images/KURENAIVOID-label-lullaby-ja.jpg", "lock": "player/assets/images/KURENAIVOID-locked-lullaby-01.jpg", "secret": "ja", "track": "S1"},
+  {"kind": "Lullaby（ロシア語）", "title": "Малышка Нина", "art": "player/assets/images/KURENAIVOID-label-lullaby-ru.jpg", "lock": "player/assets/images/KURENAIVOID-locked-lullaby-02.jpg", "secret": "ru", "track": "S2"},
+  {"kind": "Twin Single", "date": "2027-01-01"},
   {"kind": "2nd Album", "date": null}
 ],
 
 /* ---- 曲（プレーヤーとDJで使います）。label=プレーヤーのレコード中央の絵、art=DJ用のジャケット ---- */
-tracks:(window.EVERA_TRACKS||[]).map(function(t){if(!t.file)return t;var a=KV_TRACK_ART[t.rel]||KV_TRACK_ART._;return Object.assign({},t,{label:a.label,art:a.art})}),
+tracks:(window.EVERA_TRACKS||[]).map(function(t){if(!t.file)return t;var a=KV_TRACK_ART[t.rel]||KV_TRACK_ART._;return Object.assign({},t,{label:a.label,art:a.art})}).concat((window.EVERA_SECRET||[]).map(function(t){var a=KV_TRACK_ART[t.rel]||KV_TRACK_ART._;return Object.assign({},t,{label:a.label,art:a.art})})),
 
 /* ---- MV（youtube にYouTubeの動画IDを入れると表示されます） ---- */
 mvs:[
+  /* youtube に動画のID（URLの v= のあとの文字）を入れると、動画が出ます。入れるまでは COMING SOON。
+     secret を書いた枠は、その曲を見つけるまで「？？？」。子守唄は、YouTubeを「限定公開」にするのがおすすめです */
   {"title": "ILIMināt", "youtube": ""},
-  {"title": "TWIN MV", "youtube": ""}
+  {"title": "ちっちゃなニナ", "secret": "ja", "youtube": ""},
+  {"title": "Малышка Нина", "secret": "ru", "youtube": ""},
+  {"title": "EVERA AT ZERO JILL", "youtube": ""},
+  {"title": "EVERA AT ZERO NINA", "youtube": ""}
 ],
 
 /* ---- リンク（u にURLを入れると押せるようになります） ---- */
@@ -907,7 +947,7 @@ world:[
 
 /* ---- 子守唄の歌詞（AviUtlのEXOの時間が基準。[始まり秒, 終わり秒, 歌詞]。歌詞のない間は ♪ だけ出ます） ---- */
 lullaby:{
-  ja:{src:"assets/music/lullaby/KURENAIVOID-lullaby-ja.mp3", lines:[
+  ja:{src:KV_SECRET_FILE("ja"), lines:[
     [12.6, 19.0, "白雪が降る 窓の外は暗い"],
     [19.0, 25.47, "黒い鳥の影 どこへ行っちゃったの"],
     [25.47, 31.8, "眠れ眠れ 小さなニナ"],
@@ -931,7 +971,7 @@ lullaby:{
     [140.67, 147.13, "もうすぐ 朝だね 雪が止まない"],
     [147.13, 157.43, "おやすみニナ おやすみる"]
   ]},
-  ru:{src:"assets/music/lullaby/KURENAIVOID-lullaby-ru.mp3", lines:[
+  ru:{src:KV_SECRET_FILE("ru"), lines:[
     [14.7, 21.07, "Beli sneg leti v temnote"],
     [21.07, 27.53, "Spi moja sestra v teplo"],
     [27.53, 33.67, "Veter duva za oknom"],
