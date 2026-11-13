@@ -191,7 +191,7 @@ input[type=range]{accent-color:var(--red);width:100%}
 .rt{display:grid;grid-template-columns:1fr auto;gap:2px 14px;font-size:.88rem;margin:12px 0;font-variant-numeric:tabular-nums}.rt span:nth-child(odd){color:var(--mute)}
 #flag{color:#e6c35c;font-weight:800;letter-spacing:.2em;min-height:1.4em}
 #load .pn{text-align:center}#lbar{height:6px;background:rgba(255,255,255,.12);margin-top:12px}#lbar u{display:block;height:100%;width:0;background:var(--red)}
-#calib .pn{text-align:center}#cbig{height:150px;border:2px dashed #e28a9b;display:flex;align-items:center;justify-content:center;font-size:1.2rem;letter-spacing:.2em;margin:14px 0;touch-action:none}
+#calib .pn{text-align:center}#cbig{height:150px;border:2px dashed #e28a9b;display:flex;align-items:center;justify-content:center;font-size:1.2rem;letter-spacing:.2em;margin:14px 0;touch-action:none}#cintro{text-align:left;font-size:.86rem;line-height:1.75}#cintro ol{margin:8px 0 6px;padding-left:1.3em}#cintro li{margin:3px 0}#cintro b{color:#ffd76a}#cintro .nt{font-size:.78rem;color:var(--mute);margin-top:6px}#cmsg{font-family:"Arial Black",Impact,sans-serif;font-size:2.2rem;letter-spacing:.2em;min-height:3rem;color:#ffd76a;margin:6px 0 0;display:flex;align-items:center;justify-content:center}#cresmsg{font-size:.95rem;line-height:1.8;min-height:5em;margin:10px 0}#cresmsg b{font-size:1.5rem;color:#ffd76a}#cresmsg small{color:var(--mute);font-size:.78rem}
 </style>
 </head>
 <body>
@@ -266,8 +266,21 @@ input[type=range]{accent-color:var(--red);width:100%}
 <div id="mis" class="ovl"><div class="pn"><h2>MISSION</h2><div id="mtab"></div><div id="mprog"></div><div id="mgrid"></div><div id="mstx"></div><button class="btn" id="mclose" style="width:100%">とじる</button></div></div>
 <div id="load" class="ovl"><div class="pn"><h2 id="lt">LOADING</h2><div id="ls" style="font-size:.85rem;color:var(--mute)"></div><div id="lbar"><u></u></div></div></div>
 <div id="calib" class="ovl"><div class="pn"><h2>OFFSET 調整</h2>
- <div style="font-size:.85rem;color:var(--mute)">クリック音に合わせて、下の枠をタップ（またはキーを押す）してください。10回で自動計算します。</div>
- <div id="cbig">TAP</div><div id="cinfo" style="font-size:.85rem"></div><button class="btn" id="ccancel">キャンセル</button></div></div>
+ <div id="cintro">
+  <div>音と、押すタイミングの「ズレ」を自動ではかります。10回押すだけです。</div>
+  <ol>
+   <li>「はじめる」を押すと、「3・2・1・GO」と低い音が鳴ります</li>
+   <li>そのあと、高い「ピッ」が14回、同じリズムで鳴ります</li>
+   <li><b>聞いてから押すのではなく、リズムに乗って、音と同時に</b>押します</li>
+   <li>押すのは、下に出る四角をタップ（またはキーボードのどれかのキー）</li>
+   <li>最初の4回は「ならし」で、計算に入りません。そのあとの10回で計算します</li>
+  </ol>
+  <div class="nt">いつも使うイヤホン・スピーカーで、やってください。</div>
+  <button class="btn r" id="cgo">はじめる</button>
+ </div>
+ <div id="crun" style="display:none"><div id="cmsg"></div><div id="cbig">TAP</div><div id="cinfo" style="font-size:.85rem;min-height:1.4em"></div></div>
+ <div id="cres" style="display:none"><div id="cresmsg"></div><button class="btn r" id="cok">OK</button><button class="btn" id="cretry">もう一度</button></div>
+ <button class="btn" id="ccancel">キャンセル</button></div></div>
 
 </div>
 
@@ -594,7 +607,7 @@ let tbIv=0,tbVol=.6;
 const fmt=s=>{s=Math.max(0,s|0);return (s/60|0)+':'+String(s%60).padStart(2,'0')};
 function tbUI(){$('#tbplay').textContent=TB.paused?'▶ 再生':'❚❚ 一時停止';$('#tbtime').textContent=fmt(TB.currentTime)+' / '+fmt(TB.duration||0);$('#tbfill').style.width=(TB.duration?TB.currentTime/TB.duration*100:0)+'%'}
 TB.addEventListener('timeupdate',()=>{tbUI();if(!TB.paused&&TB.duration&&TB.currentTime>=90)unlockBonus()});TB.addEventListener('play',tbUI);TB.addEventListener('pause',tbUI);TB.addEventListener('loadedmetadata',tbUI);
-function tbPlay(){if(CFG.tbgm===false||!$('#menu').classList.contains('on'))return;clearInterval(tbIv);TB.volume=tbVol;const r=TB.play();if(r&&r.catch)r.catch(()=>{})}
+function tbPlay(){if(calibOn||CFG.tbgm===false||!$('#menu').classList.contains('on'))return;clearInterval(tbIv);TB.volume=tbVol;const r=TB.play();if(r&&r.catch)r.catch(()=>{})}
 function tbStop(){if(TB.paused)return;clearInterval(tbIv);let v=TB.volume;tbIv=setInterval(()=>{v-=.07;if(v<=0){clearInterval(tbIv);TB.pause();TB.volume=tbVol}else TB.volume=v},40)}
 ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,e=>{if(e.target&&e.target.closest&&e.target.closest('#tbp'))return;if(TB.paused)tbPlay()},true));
 $('#tbplay').onclick=()=>{if(TB.paused){CFG.tbgm=true;saveCfg();tbPlay()}else{CFG.tbgm=false;saveCfg();TB.pause()}};
@@ -799,7 +812,7 @@ setInterval(()=>{if(!$('#menu').classList.contains('on')||document.hidden)return
 /* ===== 入力 ===== */
 const KEYS={KeyD:0,KeyF:1,KeyJ:2,KeyK:3,ArrowLeft:0,ArrowDown:1,ArrowUp:2,ArrowRight:3};const down=new Set();
 addEventListener('keydown',e=>{
- if(calib.on){if(!e.repeat&&e.code!=='Escape'){e.preventDefault();calibTap(e.timeStamp)}else if(e.code==='Escape')calibStop();return}
+ if(calib.on){if(e.code==='Escape'){calibStop();return}if(calib.phase==='run'&&!e.repeat){e.preventDefault();calibTap(e.timeStamp)}return}
  if(e.code==='Escape'||e.code==='KeyP'){if(S.state==='play')pauseGame();else if(S.state==='pause')resumeGame();return}
  if(e.code==='KeyR'&&$('#result').classList.contains('on')){$('#rretry').click();return}
  if(e.code in KEYS){e.preventDefault();if(e.repeat||down.has(e.code))return;down.add(e.code);press(KEYS[e.code],e.timeStamp)}
@@ -1047,17 +1060,35 @@ function finish(){
  actors.forEach((a,i)=>{a.setOver(failed||!clr?'tired':'smile',99);setTimeout(()=>a.say(pick(a.cfg.lines[failed?'fail':'end']),2600),300+i*500)});
 }
 
-/* ===== OFFSET 自動調整 ===== */
-const calib={on:false,t0:0,n:10,taps:[],timer:0};
-function calibStart(){ensureCtx();calib.on=true;calib.taps=[];$('#calib').classList.add('on');$('#cinfo').textContent='準備…';
- calib.t0=ctx.currentTime+1;for(let i=0;i<calib.n+2;i++){const o=ctx.createOscillator(),gn=ctx.createGain(),t=calib.t0+i*.5;o.frequency.value=1000;gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(.25,t+.002);gn.gain.exponentialRampToValueAtTime(.0001,t+.06);o.connect(gn);gn.connect(master);o.start(t);o.stop(t+.08)}
- calib.timer=setTimeout(()=>{if(calib.on)calibEnd()},(1+(calib.n+2)*.5+1)*1000)}
-function calibTap(ts){const a=audioAt(ts),i=Math.round((a-calib.t0)/.5);if(i<0||i>calib.n+1)return;const d=a-(calib.t0+i*.5);if(Math.abs(d)>.25)return;calib.taps.push(d*1000);$('#cinfo').textContent=calib.taps.length+' / '+calib.n+'  （直前のズレ '+Math.round(d*1000)+' ms）';if(calib.taps.length>=calib.n)calibEnd()}
-function calibEnd(){clearTimeout(calib.timer);const a=calib.taps.slice().sort((x,y)=>x-y);calib.on=false;$('#calib').classList.remove('on');
- if(a.length<4){$('#mmsg').textContent='タップが少なかったので、OFFSETは変えていません。もう一度お試しください。';return}
- const med=a[Math.floor(a.length/2)];CFG.offset=clamp(Math.round(-med),-200,200);saveCfg();buildMenu();$('#mmsg').textContent='OFFSET を '+CFG.offset+' ms に設定しました（タップ '+a.length+' 回の中央値）。';}
-function calibStop(){clearTimeout(calib.timer);calib.on=false;$('#calib').classList.remove('on')}
-$('#cbtn').onclick=calibStart;$('#ccancel').onclick=calibStop;
+/* ===== OFFSET 自動調整（説明 → 3・2・1・GO → ならし4回 → 本番10回 → 結果） ===== */
+var calibOn=false;
+const calib={on:false,phase:'',B:.5,P:4,n:10,tot:14,t0:0,taps:[],used:new Set(),nodes:[],timers:[]};
+function calibShow(p){calib.phase=p;$('#cintro').style.display=p==='intro'?'':'none';$('#crun').style.display=p==='run'?'':'none';$('#cres').style.display=p==='res'?'':'none';$('#ccancel').style.display=p==='res'?'none':''}
+/* 予約してある音とタイマーを、ぜんぶ止める（画面を閉じたあとに音が残らないように） */
+function calibKill(){calib.timers.forEach(clearTimeout);calib.timers=[];calib.nodes.forEach(([o,g])=>{try{o.stop()}catch(e){}try{o.disconnect()}catch(e){}try{g.disconnect()}catch(e){}});calib.nodes=[]}
+function calibBeep(t,f,len){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.002);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.connect(g);g.connect(master);o.start(t);o.stop(t+len+.02);calib.nodes.push([o,g])}
+function calibOpen(){calibKill();calibOn=true;calib.on=true;tbStop();$('#calib').classList.add('on');calibShow('intro')}
+function calibGo(){ensureCtx();calibKill();calib.taps=[];calib.used=new Set();calibShow('run');
+ const B=calib.B,T0=ctx.currentTime,c0=T0+1.5,ms=t=>Math.max(0,(t-T0)*1000);calib.t0=c0+4*B;
+ $('#cmsg').textContent='じゅんび…';$('#cinfo').textContent='';
+ ['3','2','1','GO'].forEach((tx,k)=>{calibBeep(c0+k*B,600,.07);calib.timers.push(setTimeout(()=>{if(calib.phase==='run')$('#cmsg').textContent=tx},ms(c0+k*B)))});
+ for(let i=0;i<calib.tot;i++)calibBeep(calib.t0+i*B,1000,.06);
+ calib.timers.push(setTimeout(()=>{if(calib.phase==='run')$('#cmsg').textContent='ならし'},ms(calib.t0)));
+ calib.timers.push(setTimeout(()=>{if(calib.phase==='run')$('#cmsg').textContent='本番！'},ms(calib.t0+calib.P*B)));
+ calib.timers.push(setTimeout(()=>{if(calib.phase==='run')calibEnd()},ms(calib.t0+calib.tot*B+.6)))}
+function calibTap(ts){if(calib.phase!=='run')return;const a=audioAt(ts),i=Math.round((a-calib.t0)/calib.B);if(i<0||i>=calib.tot||calib.used.has(i))return;const d=a-(calib.t0+i*calib.B);if(Math.abs(d)>.25)return;calib.used.add(i);
+ if(i<calib.P){$('#cinfo').textContent='ならし  （ズレ '+Math.round(d*1000)+' ms）';return}
+ calib.taps.push(d*1000);$('#cinfo').textContent=calib.taps.length+' / '+calib.n+'  （直前のズレ '+Math.round(d*1000)+' ms）';
+ if(calib.taps.length>=calib.n)calibEnd()}
+function calibEnd(){calibKill();const a=calib.taps.slice().sort((x,y)=>x-y),n=a.length,msg=$('#cresmsg');calibShow('res');
+ if(n<6){msg.innerHTML='押した回数が少なかったので、OFFSETは変えていません。<br>音と同時に押す練習だと思って、もう一度どうぞ。';return}
+ const med=a[Math.floor(n/2)],iqr=Math.round(a[Math.floor(n*.75)]-a[Math.floor(n*.25)]);
+ if(iqr>70){msg.innerHTML='押すタイミングがばらばらだったので、OFFSETは変えていません。<br>「聞いてから押す」ではなく、リズムに乗って押してみてください。';return}
+ CFG.offset=clamp(Math.round(-med),-200,200);saveCfg();buildMenu();
+ msg.innerHTML='OFFSET を <b>'+CFG.offset+' ms</b> に設定しました。<br><small>押した回数 '+n+' 回 ／ ばらつき '+iqr+' ms</small>'+(Math.abs(med)>=100?'<br><small>数字が大きめです。音を聞いてから押していませんか？ Bluetoothのイヤホンなどなら、この数字で合っています。</small>':'');
+ $('#mmsg').textContent='OFFSET を '+CFG.offset+' ms に設定しました（押した回数 '+n+' 回の中央値）。'}
+function calibStop(){calibKill();calibOn=false;calib.on=false;calib.phase='';$('#calib').classList.remove('on');setTimeout(tbPlay,50)}
+$('#cbtn').onclick=calibOpen;$('#cgo').onclick=calibGo;$('#ccancel').onclick=calibStop;$('#cok').onclick=calibStop;$('#cretry').onclick=calibOpen;
 $('#cbig').addEventListener('pointerdown',e=>{e.preventDefault();calibTap(e.timeStamp)});
 
 addEventListener('resize',()=>{if($('#game').classList.contains('on'))layout()});
